@@ -110,4 +110,4 @@ def cat(zhanr):
 
 zhanr = input()
 d = cat(zhanr)
-print(cavg(d))
+print(cavg(d)) 

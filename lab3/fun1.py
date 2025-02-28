@@ -106,18 +106,18 @@ import random
 # r = float(input("Enter the radius of the sphere: "))
 # print(f"Volume of the sphere: {sphere_volume(r)}")
 
-# #10.numbers
-# def unique_elements(lst):
-#     unique_list = []
-#     for item in lst:
-#         if item not in unique_list:
-#             unique_list.append(item)
-#     return unique_list
+#10.numbers
+def unique_elements(lst):
+    unique_list = []
+    for item in lst:
+        if item not in unique_list:
+            unique_list.append(item)
+    return unique_list
 
-# user_input = input("Enter numbers separated by spaces: ").split()
-# numbers = [int(num) for num in user_input]
+user_input = input("Enter numbers separated by spaces: ").split()
+numbers = [int(num) for num in user_input]
 
-# print("Unique elements:", unique_elements(numbers))
+print("Unique elements:", unique_elements(numbers))
 
 # #11.pali
 # def is_palindrome(s):
@@ -137,26 +137,26 @@ import random
 
 # histogram(numbers)
 
-#13.guess
-def guess_number_game():
-    print("Hello! What is your name?")
-    name = input()
+# №13.guess
+# def guess_number_game():
+#     print("Hello! What is your name?")
+#     name = input()
 
-    number_to_guess = random.randint(1, 20)
-    print(f"Well, {name}, I am thinking of a number between 1 and 20.")
+#     number_to_guess = random.randint(1, 20)
+#     print(f"Well, {name}, I am thinking of a number between 1 and 20.")
 
-    attempts = 0
-    while True:
-        print("Take a guess.")
-        guess = int(input())
-        attempts += 1
+#     attempts = 0
+#     while True:
+#         print("Take a guess.")
+#         guess = int(input())
+#         attempts += 1
 
-        if guess < number_to_guess:
-            print("Your guess is too low.")
-        elif guess > number_to_guess:
-            print("Your guess is too high.")
-        else:
-            print(f"Good job, {name}! You guessed my number in {attempts} guesses!")
-            break
+#         if guess < number_to_guess:
+#             print("Your guess is too low.")
+#         elif guess > number_to_guess:
+#             print("Your guess is too high.")
+#         else:
+#             print(f"Good job, {name}! You guessed my number in {attempts} guesses!")
+#             break
 
-guess_number_game()
+# guess_number_game()
