@@ -63,7 +63,6 @@ import string
 # write_list_to_file(file_path, data_list)
 
 
-# Create text files named A.txt, B.txt, ..., Z.txt
 # for letter in string.ascii_uppercase:
 #     filename = f"{letter}.txt"
 #     with open(filename, 'w') as file:
@@ -71,25 +70,24 @@ import string
 
 # print("26 text files created successfully!")
 
-# Program to copy contents from one file to another
 
-# def copy_file(source_file, destination_file):
-#     try:
-#         with open(source_file, 'r') as src:
-#             content = src.read()
+def copy_file(source_file, destination_file):
+    try:
+        with open(source_file, 'r') as src:
+            content = src.read()
         
-#         with open(destination_file, 'w') as dest:
-#             dest.write(content)
+        with open(destination_file, 'w') as dest:
+            dest.write(content)
             
-#         print(f"Contents successfully copied from {source_file} to {destination_file}.")
+        print(f"Contents successfully copied from {source_file} to {destination_file}.")
         
-#     except FileNotFoundError:
-#         print(f"Error: The file {source_file} does not exist.")
-#     except IOError as e:
-#         print(f"I/O error occurred: {e}")
+    except FileNotFoundError:
+        print(f"Error: The file {source_file} does not exist.")
+    except IOError as e:
+        print(f"I/O error occurred: {e}")
 
-# source = 'source.txt'
-# destination = 'destination.txt'
+source = 'source.txt'
+destination = 'destination.txt'
 
 # copy_file(source, destination)
 
