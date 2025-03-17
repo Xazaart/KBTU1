@@ -59,7 +59,7 @@ while running:
 
     # Надписи
     song_name = playlist[ind].replace(".mp3", "")
-    text_surface1 = font.render(f"Now playing {song_name}", True, TEXT_COLOR)
+    text_surface1 = font.render("Now playing", True, TEXT_COLOR)
     text_surface2 = font.render(f"{song_name}", True, TEXT_COLOR)
     text_rect1 = text_surface1.get_rect(center=(HEIGTH//2,WEIGTH//2-200))
     screen.blit(text_surface1, text_rect1)

@@ -19,14 +19,17 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    pressed = pygame.key.get_pressed()
-    if pressed[pygame.K_UP]: y -= 20
-    if pressed[pygame.K_DOWN]: y += 20
-    if pressed[pygame.K_LEFT]: x -= 20
-    if pressed[pygame.K_RIGHT]: x += 20
+    
 
     screen.fill(BG_COLOR)
-    pygame.draw.circle(screen, BALL_COLOR, (x,y), 25, 25)
+    cir = pygame.draw.circle(screen, BALL_COLOR, (x,y), 25, 25)
+    cir
+
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_UP] and cir.y > 0: y -= 20
+    if pressed[pygame.K_DOWN] and cir.y < 650-50: y += 20
+    if pressed[pygame.K_LEFT] and cir.x > 0: x -= 20
+    if pressed[pygame.K_RIGHT] and cir.x < 850-50: x += 20
 
     pygame.display.flip()
     clock.tick(60)
