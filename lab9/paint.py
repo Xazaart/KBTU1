@@ -239,4 +239,3 @@ while True:
  
     pygame.display.flip()  # Update the display
     clock.tick(FPS)  # Control the frame rate
-
