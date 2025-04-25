@@ -111,6 +111,20 @@ def delete_by_first_name(username):
     except (Exception, psycopg2.DatabaseError) as error:
         print("Ошибка при удалении записей:", error)
 
+def delete_by_phone(phone):
+    config = load_config()
+
+    try:
+        with psycopg2.connect(**config) as conn:
+            with conn.cursor() as cur:
+                # Явный вызов SQL-процедуры через CALL
+                cur.execute("CALL delete_by_phone(%s);", (phone,))
+                conn.commit()
+                print(f"Записи с именем {phone} были удалены.")
+                
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Ошибка при удалении записей:", error)
+
 
 
 if __name__ == '__main__':
@@ -137,6 +151,11 @@ if __name__ == '__main__':
             print(row)
     
     if mode == "d":
-        name = input()
-        delete_by_first_name(name)
+        a = input("По какому параметру хотите удалить?(name or phone) ")
+        if a == "name":
+            name = input()
+            delete_by_first_name(name)
+        if a == "phone":
+            phone = input()
+            delete_by_phone(phone)
 
