@@ -25,76 +25,20 @@ def search_records(pattern):
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while fetching records:", error)
 
-def check(name, phone_number):
-    """ Проверка, существует ли пользователь с таким именем, и обновление или добавление записи """
+def check_and_update_or_insert(name, phone_number):
     config = load_config()
     
     try:
         with psycopg2.connect(**config) as conn:
             with conn.cursor() as cur:
-                # Проверка, существует ли пользователь с таким именем
-                cur.execute("""
-                    SELECT 1 FROM phonebook WHERE first_name = %s LIMIT 1;
-                """, (name,))
-                
-                if cur.fetchone() is not None:
-                    print("Пользователь существует. Обновляем номер телефона.")
-                    update_vendor(phone_number, name)  # Обновляем номер телефона, если пользователь существует
-                else:
-                    print("Пользователь не найден. Добавляем новый.")
-                    insert_vendor(name, phone_number)  # Добавляем нового пользователя, если не существует
-    except (Exception, psycopg2.DatabaseError) as error:
-        print("Ошибка при проверке пользователя:", error)
-
-def insert_vendor(first_name, phone_number):
-    """ Вставка нового пользователя в таблицу phonebook """
-    sql = """INSERT INTO phonebook(first_name, phone_number)
-             VALUES(%s, %s) RETURNING contact_id;"""
-
-    contact_id = None
-    config = load_config()
-
-    try:
-        with psycopg2.connect(**config) as conn:
-            with conn.cursor() as cur:
-                # Выполнение INSERT запроса
-                cur.execute(sql, (first_name, phone_number))
-
-                # Получаем сгенерированный id
-                rows = cur.fetchone()
-                if rows:
-                    contact_id = rows[0]
-
-                # Фиксация изменений в базе данных
+                cur.execute("CALL check_and_update_or_insert_user(%s, %s);", (name, phone_number))
                 conn.commit()
+                print(f"Процедура для пользователя {name} завершена.")
+    
     except (Exception, psycopg2.DatabaseError) as error:
-        print("Ошибка при вставке данных:", error)
-    finally:
-        return contact_id
-
-def update_vendor(phone_number, name):
-    """ Обновление номера телефона для пользователя по имени """
-    sql = """UPDATE phonebook
-             SET phone_number = %s
-             WHERE first_name = %s"""
-
-    config = load_config()
-    try:
-        with psycopg2.connect(**config) as conn:
-            with conn.cursor() as cur:
-                # Выполнение UPDATE запроса
-                cur.execute(sql, (phone_number, name))
-                updated_row_count = cur.rowcount
-            # Фиксация изменений в базе данных
-            conn.commit()
-            print(f"Обновлено {updated_row_count} записей.")
-    except (Exception, psycopg2.DatabaseError) as error:
-        print("Ошибка при обновлении данных:", error)
+        print("Ошибка при вызове процедуры:", error)
 
 def validate_phone_number(phone_number):
-    """
-    Validate if the phone number is a valid 10-digit number.
-    """
     return bool(re.match(r'^\d{10}$', phone_number))  # 10-digit number check
 
 def insert_users(names, phones):
@@ -103,30 +47,25 @@ def insert_users(names, phones):
     successful_inserts = 0
 
     try:
-
         with psycopg2.connect(**config) as conn:
             with conn.cursor() as cur:
                 for name, phone in zip(names, phones):
-   
-                    if validate_phone_number(phone):
-
+                    if validate_phone_number(phone):  # Проверяем номер
                         try:
-                            cur.execute("""
-                                INSERT INTO phonebook (first_name, phone_number)
-                                VALUES (%s, %s)
-                            """, (name, phone))
+
+                            cur.execute("CALL insert_user(%s, %s);", (name, phone))
                             successful_inserts += 1
                         except psycopg2.DatabaseError as e:
                             print(f"Error inserting {name} with phone {phone}: {e}")
                     else:
                         invalid_data.append(f"{name} - {phone}")
 
-                conn.commit()
+                conn.commit()  # Сохраняем изменения в базе
 
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error while inserting records:", error)
 
-
+    # Выводим список неверных данных
     if invalid_data:
         print("Invalid data found:")
         for data in invalid_data:
@@ -135,6 +74,44 @@ def insert_users(names, phones):
         print("All data inserted successfully.")
 
     print(f"Total successful inserts: {successful_inserts}")
+
+def get_paginated_data(limit, offset):
+
+    config = load_config()
+
+    try:
+        with psycopg2.connect(**config) as conn:
+            with conn.cursor() as cur:
+
+                query = f"SELECT * FROM phonebook LIMIT %s OFFSET %s"
+                cur.execute(query, (limit, offset))
+
+                rows = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return rows
+
+    except Exception as e:
+        print("Ошибка при выполнении запроса:", e)
+        return []
+
+def delete_by_first_name(username):
+    config = load_config()
+
+    try:
+        with psycopg2.connect(**config) as conn:
+            with conn.cursor() as cur:
+                # Явный вызов SQL-процедуры через CALL
+                cur.execute("CALL delete_by_nname(%s);", (username,))
+                conn.commit()
+                print(f"Записи с именем {username} были удалены.")
+                
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Ошибка при удалении записей:", error)
+
+
 
 if __name__ == '__main__':
     mode = input("Что будем делать?: ")
@@ -146,10 +123,20 @@ if __name__ == '__main__':
     if mode == "i":
         name = input("Введите имя: ")
         number = input("Введите номер телефона: ")
-        check(name, number)
+        check_and_update_or_insert(name, number)
 
     if mode == "m":
-        names = ['Alice', 'Bob', 'Charlie', 'David']
+        names = ['Alice', 'Bob', 'Charli', 'David']
         phones = ['1234567890', '987654a21', '1122334455', '1234']
 
         insert_users(names, phones)
+
+    if mode == "q":
+        data = get_paginated_data(limit=4, offset=5)
+        for row in data:
+            print(row)
+    
+    if mode == "d":
+        name = input()
+        delete_by_first_name(name)
+
